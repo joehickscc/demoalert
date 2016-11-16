@@ -11,14 +11,35 @@
 ## end
 ##
 
+coreo_aws_advisor_alert "redshift-snapshot-retention" do
+  action :define
+  service :redshift
+  link "http://kb.cloudcoreo.com/"
+  display_name "Redshift short snapshot retention period"
+  description "The affected Redshift cluster has a short snapshot retention period."
+  category "Dataloss"
+  suggested_action "Increase the snapshot retention period for the affected Redshift cluster."
+  level "Critical"
+  objectives ["clusters"]
+  id_map "object.clusters.cluster_identifier"
+  audit_objects ["object.clusters.automated_snapshot_retention_period"]
+  operators ["<="]
+  alert_when [10]
+end
 
-coreo_uni_util_notify "advise-redshift" do
+coreo_aws_advisor_redshift "advise-redshift" do
+  alerts ["redshift-snapshot-retention"]
+  action :advise
+  regions ["us-east-1"]
+end
+
+coreo_uni_util_notify "send email" do
   action :notify
   type 'email'
   allow_empty true
   send_on "always"
-  payload '{}'
-  payload_type "text"
+  payload "COMPOSITE::coreo_aws_advisor_redshift.advise-redshift.report"
+  payload_type "json"
   endpoint ({
       :to => 'joe@cloudcoreo.com', :subject => 'test alert'
   })
