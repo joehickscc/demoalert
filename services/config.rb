@@ -10,3 +10,16 @@
 ##   internet_gateway true
 ## end
 ##
+
+
+coreo_uni_util_notify "advise-redshift" do
+  action :notify
+  type 'email'
+  allow_empty true
+  send_on "always"
+  payload '{}'
+  payload_type "text"
+  endpoint ({
+      :to => 'joe@cloudcoreo.com', :subject => 'test alert'
+  })
+end
